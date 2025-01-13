@@ -37,6 +37,7 @@ namespace CommandInfoUpdater
             new("BRPOP", RespCommand.BRPOP),
             new("BLMOVE", RespCommand.BLMOVE),
             new("BRPOPLPUSH", RespCommand.BRPOPLPUSH),
+            new("BLMPOP", RespCommand.BLMPOP),
             new("CLIENT", RespCommand.CLIENT,
             [
                 new("CLIENT|ID", RespCommand.CLIENT_ID),
@@ -133,7 +134,9 @@ namespace CommandInfoUpdater
             new("GETEX", RespCommand.GETEX),
             new("GETBIT", RespCommand.GETBIT),
             new("GETDEL", RespCommand.GETDEL),
+            new("GETIFNOTMATCH", RespCommand.GETIFNOTMATCH),
             new("GETRANGE", RespCommand.GETRANGE),
+            new("GETWITHETAG", RespCommand.GETWITHETAG),
             new("GETSET", RespCommand.GETSET),
             new("HDEL", RespCommand.HDEL),
             new("HELLO", RespCommand.HELLO),
@@ -157,6 +160,7 @@ namespace CommandInfoUpdater
             new("INCRBYFLOAT", RespCommand.INCRBYFLOAT),
             new("INFO", RespCommand.INFO),
             new("KEYS", RespCommand.KEYS),
+            new("LCS", RespCommand.LCS),
             new("LASTSAVE", RespCommand.LASTSAVE),
             new("LATENCY", RespCommand.LATENCY,
             [
@@ -234,6 +238,7 @@ namespace CommandInfoUpdater
             new("SET", RespCommand.SET),
             new("SETBIT", RespCommand.SETBIT),
             new("SETEX", RespCommand.SETEX),
+            new("SETIFMATCH", RespCommand.SETIFMATCH),
             new("SETNX", RespCommand.SETNX),
             new("SETRANGE", RespCommand.SETRANGE),
             new("SISMEMBER", RespCommand.SISMEMBER),
@@ -268,8 +273,12 @@ namespace CommandInfoUpdater
             new("ZDIFF", RespCommand.ZDIFF),
             new("ZDIFFSTORE", RespCommand.ZDIFFSTORE),
             new("ZINCRBY", RespCommand.ZINCRBY),
+            new("ZINTER", RespCommand.ZINTER),
+            new("ZINTERCARD", RespCommand.ZINTERCARD),
+            new("ZINTERSTORE", RespCommand.ZINTERSTORE),
             new("ZLEXCOUNT", RespCommand.ZLEXCOUNT),
             new("ZMSCORE", RespCommand.ZMSCORE),
+            new("ZMPOP", RespCommand.ZMPOP),
             new("ZPOPMAX", RespCommand.ZPOPMAX),
             new("ZPOPMIN", RespCommand.ZPOPMIN),
             new("ZRANDMEMBER", RespCommand.ZRANDMEMBER),
@@ -287,9 +296,16 @@ namespace CommandInfoUpdater
             new("ZREVRANK", RespCommand.ZREVRANK),
             new("ZSCAN", RespCommand.ZSCAN),
             new("ZSCORE", RespCommand.ZSCORE),
+            new("ZUNION", RespCommand.ZUNION),
+            new("ZUNIONSTORE", RespCommand.ZUNIONSTORE),
             new("EVAL", RespCommand.EVAL),
             new("EVALSHA", RespCommand.EVALSHA),
-            new("SCRIPT", RespCommand.SCRIPT),
+            new("SCRIPT", RespCommand.SCRIPT,
+            [
+                new("SCRIPT|EXISTS", RespCommand.SCRIPT_EXISTS),
+                new("SCRIPT|FLUSH", RespCommand.SCRIPT_FLUSH),
+                new("SCRIPT|LOAD", RespCommand.SCRIPT_LOAD),
+            ])
         ];
 
         static readonly Lazy<IReadOnlyDictionary<string, SupportedCommand>> LazySupportedCommandsMap =

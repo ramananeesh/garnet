@@ -248,6 +248,18 @@ Bulk string reply: the element being popped and pushed.
 
 ---
 
+### BLMPOP
+
+#### Syntax
+
+```bash
+    BLMPOP timeout numkeys key [key ...] <LEFT | RIGHT> [COUNT count]
+```
+
+BLMPOP is the blocking variant of [LMPOP](#lmpop). When any of the lists contains elements, this command behaves exactly like LMPOP. When used inside a MULTI/EXEC block, this command behaves exactly like LMPOP. When all lists are empty, Garnet will block the connection until another client pushes to it or until timeout (a double value specifying the maximum number of seconds to block) is reached. A timeout of zero can be used to block indefinitely.
+
+---
+
 ### BLPOP
 
 #### Syntax
@@ -823,6 +835,43 @@ An error is returned when **key** exists but does not hold a sorted set.
 
 The score value should be the string representation of a numeric value, and accepts double precision floating point numbers. It is possible to provide a negative value to decrement the score.
 
+---
+
+### ZINTER
+
+#### Syntax
+
+```bash
+    ZINTER numkeys key [key ...] [WEIGHTS weight [weight ...]] [AGGREGATE <SUM|MIN|MAX>] [WITHSCORES]
+```
+
+Computes the intersection of the sorted sets given by the specified keys and returns the result. It is possible to specify multiple keys.
+
+The result is a new sorted set with the same elements as the input sets, but with scores equal to the sum of the scores of the elements in the input sets.
+
+---
+
+### ZINTERCARD
+
+#### Syntax
+
+```bash
+    ZINTERCARD numkeys key [key ...] [LIMIT limit]
+```
+
+Returns the number of elements in the intersection of the sorted sets given by the specified keys.
+
+---
+
+### ZINTERSTORE
+
+#### Syntax
+
+```bash
+    ZINTERSTORE destination numkeys key [key ...] [WEIGHTS weight [weight ...]] [AGGREGATE <SUM|MIN|MAX>]
+```
+
+Computes the intersection of the sorted sets given by the specified keys and stores the result in the destination key.
 
 ---
 
@@ -856,6 +905,22 @@ Returns one of the following:
 
 _Nil reply:_ if the member does not exist in the sorted set.\
 _Array reply:_ a list of string **member** scores as double-precision floating point numbers.
+
+---
+
+### ZMPOP
+
+#### Syntax
+
+```bash
+    ZMPOP numkeys key [key ...] <MIN | MAX> [COUNT count]
+```
+
+Removes and returns one or more members with the lowest scores (default) or highest scores from the sorted set or sorted sets.
+
+- MIN: Remove elements starting with the lowest scores
+- MAX: Remove elements starting with the highest scores
+- COUNT: Specifies how many elements to pop (default is 1)
 
 ---
 
@@ -1127,6 +1192,42 @@ Stores the specified range of elements in the sorted set stored at **src** into 
 
 ---
 
+### ZUNION
+
+#### Syntax
+
+```bash
+    ZUNION numkeys key [key ...] [WEIGHTS weight [weight ...]] [AGGREGATE <SUM | MIN | MAX>] [WITHSCORES]
+```
+
+Returns the union of the input sorted sets specified by the keys. The total number of input keys is specified by numkeys.
+
+Keys that do not exist are considered to be empty sets.
+
+#### Resp Reply
+
+Array reply: the result of the union with, optionally, their scores when WITHSCORES is used.
+
+---
+
+### ZUNIONSTORE
+
+#### Syntax
+
+```bash
+    ZUNIONSTORE destination numkeys key [key ...] [WEIGHTS weight [weight ...]] [AGGREGATE <SUM | MIN | MAX>] 
+```
+
+Computes the union of the input sorted sets specified by the keys and stores the result in destination. The total number of input keys is specified by numkeys.
+
+Keys that do not exist are considered to be empty sets.
+
+#### Resp Reply
+
+Integer reply: the number of members in the resulting sorted set at destination.
+
+---
+
 ## Geospatial indices
 
 ### GEOADD
@@ -1269,4 +1370,3 @@ This command is like [GEOSEARCH](#geosearch), but stores the result in destinati
 Integer reply: the number of elements in the resulting set
 
 ---
-

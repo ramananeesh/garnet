@@ -209,7 +209,7 @@ Note that this list is subject to change as we continue to expand our API comman
 |  | LATEST | ➖ |  |
 |  | [RESET](server.md#latency-reset) | ➕ |  |
 | <span id="list">**LIST**</span> | [BLMOVE](data-structures.md#blmove) | ➕ |  |
-|  | BLMPOP | ➖ |  |
+|  | [BLMPOP](data-structures.md#blmpop) | ➕ |  |
 |  | [BLPOP](data-structures.md#blpop) | ➕ |  |
 |  | [BRPOP](data-structures.md#brpop) | ➕ |  |
 |  | [BRPOPLPUSH](data-structures.md#brpoplpush) | ➕ | (Deprecated) |
@@ -327,11 +327,11 @@ Note that this list is subject to change as we continue to expand our API comman
 |  | [ZDIFF](data-structures.md#zdiff) | ➕ |  |
 |  | [ZDIFFSTORE](data-structures.md#zdiffstore) | ➕ |  |
 |  | [ZINCRBY](data-structures.md#zincrby) | ➕ |  |
-|  | ZINTER | ➖ |  |
-|  | ZINTERCARD | ➖ |  |
-|  | ZINTERSTORE | ➖ |  |
+|  | [ZINTER](data-structures.md#zinter) | ➕ |  |
+|  | [ZINTERCARD](data-structures.md#zintercard) | ➕ |  |
+|  | [ZINTERSTORE](data-structures.md#zinterstore) | ➕ |  |
 |  | [ZLEXCOUNT](data-structures.md#zlexcount) | ➕ |  |
-|  | ZMPOP | ➖ |  |
+|  | [ZMPOP](data-structures.md#zmpop) | ➕ |  |
 |  | [ZMSCORE](data-structures.md#zmscore) | ➕ |  |
 |  | [ZPOPMAX](data-structures.md#zpopmax) | ➕ |  |
 |  | [ZPOPMIN](data-structures.md#zpopmin) | ➕ |  |
@@ -351,8 +351,8 @@ Note that this list is subject to change as we continue to expand our API comman
 |  | [ZREVRANK](data-structures.md#zrevrank) | ➕ |  |
 |  | [ZSCAN](data-structures.md#zscan) | ➕ |  |
 |  | [ZSCORE](data-structures.md#zscore) | ➕ |  |
-|  | ZUNION | ➖ |  |
-|  | ZUNIONSTORE | ➖ |  |
+|  | [ZUNION](data-structures.md#zunion) | ➕ |  |
+|  | [ZUNIONSTORE](data-structures.md#zunionstore) | ➕ |  |
 | <span id="stream">**STREAM**</span> | XACK | ➖ |  |
 |  | XADD | ➖ |  |
 |  | XAUTOCLAIM | ➖ |  |
@@ -387,7 +387,7 @@ Note that this list is subject to change as we continue to expand our API comman
 |  | [INCR](raw-string.md#incr) | ➕ |  |
 |  | [INCRBY](raw-string.md#incrby) | ➕ |  |
 |  | [INCRBYFLOAT](raw-string.md#incrbyfloat) | ➕ |  |
-|  | LCS | ➖ |  |
+|  | [LCS](raw-string.md#lcs) | ➕ |  |
 |  | [MGET](raw-string.md#mget) | ➕ |  |
 |  | [MSET](raw-string.md#mset) | ➕ |  |
 |  | [MSETNX](raw-string.md#msetnx) | ➕ |  |
