@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 
 namespace Garnet.server.BTreeIndex
 {
-    public unsafe class BPlusTree
+    public unsafe partial class BPlusTree
     {
         BTreeNode* root;
         BTreeNode* head;
@@ -19,6 +19,9 @@ namespace Garnet.server.BTreeIndex
         BTreeNode*[] rootToTailLeaf; // array of nodes from root to tail leaf
         BTreeStats stats; // statistics about the tree
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BPlusTree"/> class.
+        /// </summary>
         public BPlusTree()
         {
             // TODO: Use a different memory allocation policy
