@@ -121,6 +121,11 @@ namespace Garnet.server.BTreeIndex
             data.values[index] = value;
         }
 
+        public Value GetValue(int index)
+        {
+            return data.values[index];
+        }
+
         public void SetValueValid(int index, bool valid)
         {
             data.values[index].Valid = valid;
