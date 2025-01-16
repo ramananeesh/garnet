@@ -1,0 +1,30 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
+
+using System;
+
+namespace Garnet.server.BTreeIndex
+{
+    public unsafe partial class BPlusTree
+    {
+        public bool Delete(byte* key)
+        {
+            BTreeNode* leaf = null;
+            var nodesTraversed = new BTreeNode*[MAX_TREE_DEPTH];
+
+            TraverseToLeaf(ref leaf, ref nodesTraversed, key);
+            var index = leaf->LowerBound(key);
+            if (index >= leaf->info->count || BTreeNode.Compare(key, leaf->GetKey(index)) != 0)
+            {
+                return false;
+            }
+
+            // insert a tombstone for the delete 
+            leaf->InsertTombstone(index);
+            leaf->info->validCount--;
+            stats.numValidKeys--;
+            return true;
+        }
+    }
+}

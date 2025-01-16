@@ -121,6 +121,16 @@ namespace Garnet.server.BTreeIndex
             data.values[index] = value;
         }
 
+        public void SetValueValid(int index, bool valid)
+        {
+            data.values[index].Valid = valid;
+        }
+
+        public void InsertTombstone(int index)
+        {
+            data.values[index].Valid = false;
+        }
+
         public int UpperBound(byte* key)
         {
             if (info->count == 0)
@@ -140,6 +150,34 @@ namespace Garnet.server.BTreeIndex
                 else
                 {
                     left = mid + 1;
+                }
+            }
+            return left;
+        }
+
+        public int LowerBound(byte* key)
+        {
+            if (info->count == 0)
+            {
+                return 0;
+            }
+            int left = 0, right = info->count - 1;
+            while (left <= right)
+            {
+                var mid = left + (right - left) / 2;
+                byte* midKey = GetKey(mid);
+                int cmp = Compare(midKey, key);
+                if (cmp == 0)
+                {
+                    return mid;
+                }
+                else if (cmp < 0)
+                {
+                    left = mid + 1;
+                }
+                else
+                {
+                    right = mid - 1;
                 }
             }
             return left;
