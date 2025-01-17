@@ -8,6 +8,16 @@ namespace Garnet.server.BTreeIndex
 {
     public unsafe partial class BPlusTree
     {
+        public bool Insert(byte* key, Value value)
+        {
+            BTreeNode* leaf = null;
+            stats.totalFastInserts++;
+            stats.totalInserts++;
+            stats.numKeys++;
+            stats.numValidKeys++;
+            leaf = tail;
+            return InsertToLeafNode(ref leaf, ref rootToTailLeaf, key, value);
+        }
         public bool InsertToLeafNode(ref BTreeNode* leaf, ref BTreeNode*[] nodesTraversed, byte* key, Value value)
         {
             int index;

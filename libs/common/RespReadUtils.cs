@@ -520,6 +520,16 @@ namespace Garnet.common
         }
 
         /// <summary>
+        /// Tries to read a Ulong from the given ASCII-encoded RESP string. 
+        /// Note: this does not check for any length headers and is simply an accessor to TryReadUlong.
+        /// </summary>
+        /// <param name="number">If parsing was successful, contains the parsed ulong value.</param>
+        /// <param name="ptr">The starting position in the RESP string. Will be advanced if parsing is successful.</param>
+        /// <param name="end">The current end of the RESP string.</param>
+        /// <returns>True if a ulong was successfully parsed.</returns>
+        public static bool ReadUlong(out ulong number, ref byte* ptr, byte* end) => TryReadUlong(ref ptr, end, out number, out _);
+
+        /// <summary>
         /// Read long with length header
         /// </summary>
         public static bool ReadLongWithLengthHeader(out long number, ref byte* ptr, byte* end)

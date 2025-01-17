@@ -176,6 +176,11 @@ namespace Garnet.server
         internal readonly SessionScriptCache sessionScriptCache;
 
         /// <summary>
+        /// A per-session cache for storing garnet streams
+        /// </summary>
+        internal readonly SessionGarnetStreamCache sessionStreamCache;
+
+        /// <summary>
         /// Identifier for session - used for CLIENT and related commands.
         /// </summary>
         public long Id { get; }

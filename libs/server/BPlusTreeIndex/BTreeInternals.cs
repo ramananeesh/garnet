@@ -46,6 +46,12 @@ namespace Garnet.server.BTreeIndex
                 valid = (byte)(value ? 1 : 0);
             }
         }
+
+        public Value(ulong value)
+        {
+            this.valid = 1;
+            this.address = value;
+        }
     }
 
     public unsafe struct NodeInfo

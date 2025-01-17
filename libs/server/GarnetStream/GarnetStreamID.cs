@@ -26,5 +26,34 @@ namespace Garnet.server
             BinaryPrimitives.WriteUInt64BigEndian(new Span<byte>(Unsafe.AsPointer(ref this.ms), 8), ms);
             BinaryPrimitives.WriteUInt64BigEndian(new Span<byte>(Unsafe.AsPointer(ref this.seq), 8), seq);
         }
+        public void setMS(ulong ms)
+        {
+            BinaryPrimitives.WriteUInt64BigEndian(new Span<byte>(Unsafe.AsPointer(ref this.ms), 8), ms);
+        }
+
+        public void setSeq(ulong seq)
+        {
+            BinaryPrimitives.WriteUInt64BigEndian(new Span<byte>(Unsafe.AsPointer(ref this.seq), 8), seq);
+        }
+
+        public ulong getMS()
+        {
+            return ms;
+        }
+
+        public ulong getSeq()
+        {
+            return seq;
+        }
+
+        public unsafe GarnetStreamID(byte[] inputBytes)
+        {
+            if (inputBytes.Length != 16)
+            {
+                throw new ArgumentException("idBytes must be 16 bytes");
+            }
+
+            Buffer.MemoryCopy((byte*)Unsafe.AsPointer(ref inputBytes[0]), (byte*)Unsafe.AsPointer(ref idBytes[0]), 16, 16);
+        }
     }
 }
