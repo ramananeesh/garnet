@@ -224,6 +224,21 @@ namespace Garnet.server.BTreeIndex
                 return new Span<byte>(key1, KEY_SIZE).SequenceCompareTo(new Span<byte>(key2, KEY_SIZE));
             }
         }
+
+        public void Deallocate()
+        {
+            if (memoryBlock != IntPtr.Zero)
+            {
+                Marshal.FreeHGlobal(memoryBlock);
+                memoryBlock = IntPtr.Zero;
+
+                // After freeing the memory, explicitly set pointers to null to avoid dangling pointers.
+                info = null;
+                keys = null;
+                data.values = null; // Only necessary if data.values or data.children was separately allocated
+                data.children = null;
+            }
+        }
     }
 
     /// <summary>
