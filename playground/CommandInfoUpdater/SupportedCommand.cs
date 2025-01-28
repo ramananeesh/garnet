@@ -305,7 +305,12 @@ namespace CommandInfoUpdater
                 new("SCRIPT|EXISTS", RespCommand.SCRIPT_EXISTS),
                 new("SCRIPT|FLUSH", RespCommand.SCRIPT_FLUSH),
                 new("SCRIPT|LOAD", RespCommand.SCRIPT_LOAD),
-            ])
+            ]),
+            new("XADD", RespCommand.XADD),
+            new("XLEN", RespCommand.XLEN),
+            new("XRANGE", RespCommand.XRANGE),
+            new("XDEL", RespCommand.XDEL),
+            new("XTRIM", RespCommand.XTRIM),
         ];
 
         static readonly Lazy<IReadOnlyDictionary<string, SupportedCommand>> LazySupportedCommandsMap =

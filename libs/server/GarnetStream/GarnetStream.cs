@@ -39,12 +39,16 @@ namespace Garnet.server
         {
             device = logDir == null ? new NullDevice() : Devices.CreateLogDevice("streamLogs/" + logDir + "/streamLog", preallocateFile: false);
             log = new TsavoriteLog(new TsavoriteLogSettings { LogDevice = device, PageSize = pageSize, MemorySize = memorySize });
-            index = new BPlusTree();
+            index = new BPlusTree(device.SectorSize);
             totalEntriesAdded = 0;
             lastId = default;
             _lock = new SingleWriterMultiReaderLock();
         }
 
+        /// <summary>
+        /// Increment the stream ID
+        /// </summary>
+        /// <param name="incrementedID">carries the incremented stream id</param>
         public void IncrementID(ref GarnetStreamID incrementedID)
         {
             while (true)

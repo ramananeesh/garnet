@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using Tsavorite.core;
 
 namespace Garnet.server.BTreeIndex
 {
@@ -21,14 +22,17 @@ namespace Garnet.server.BTreeIndex
         BTreeNode*[] rootToTailLeaf; // array of nodes from root to tail leaf
         BTreeStats stats; // statistics about the tree
 
+        SectorAlignedBufferPool bufferPool;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="BPlusTree"/> class.
         /// </summary>
-        public BPlusTree()
+        public BPlusTree(uint sectorSize)
         {
+            bufferPool = new SectorAlignedBufferPool(1, (int)sectorSize);
             // TODO: Use a different memory allocation policy
             root = (BTreeNode*)Marshal.AllocHGlobal(sizeof(BTreeNode)).ToPointer();
-            root->Allocate(BTreeNodeType.Leaf);
+            root->Allocate(BTreeNodeType.Leaf, bufferPool);
             head = tail = root;
             root->info->next = root->info->previous = null;
             root->info->count = 0;
@@ -37,6 +41,7 @@ namespace Garnet.server.BTreeIndex
             stats = new BTreeStats();
             stats.depth = 1;
             stats.numLeafNodes = 1;
+
         }
 
         /// <summary>
@@ -63,7 +68,7 @@ namespace Garnet.server.BTreeIndex
             node->Deallocate();
 
             // free the pointer to the node 
-            Marshal.FreeHGlobal((IntPtr)node);
+            // Marshal.FreeHGlobal((IntPtr)node);
             node = null;
         }
 

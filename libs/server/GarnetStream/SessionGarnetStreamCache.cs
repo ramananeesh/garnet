@@ -11,7 +11,6 @@ namespace Garnet.server
 {
     internal struct SessionGarnetStreamCache
     {
-        // TODO: make this a tunable parameter
         const int DefaultCacheSize = 16;
         readonly Dictionary<byte[], GarnetStreamObject> streamCache = new Dictionary<byte[], GarnetStreamObject>(DefaultCacheSize, new ByteArrayComparer());
         readonly byte[][] streamKeysCache = new byte[DefaultCacheSize][];
@@ -49,17 +48,15 @@ namespace Garnet.server
                 cachedStreamsCount++;
                 return true;
             }
-            else
-            {
-                streamCache.Remove(streamKeysCache[front]);
-                streamCache.Add(key, stream);
-                // add to circular array where we removed the oldest stream
-                streamKeysCache[front] = key;
-                front = (front + 1) % DefaultCacheSize;
-                // we don't need to update cachedStreamsCount since we added and removed a stream
-                return true;
-            }
-            // return false;
+
+            streamCache.Remove(streamKeysCache[front]);
+            streamCache.Add(key, stream);
+            // add to circular array where we removed the oldest stream
+            streamKeysCache[front] = key;
+            front = (front + 1) % DefaultCacheSize;
+            // we don't need to update cachedStreamsCount since we added and removed a stream
+            return true;
+
         }
     }
 }

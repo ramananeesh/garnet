@@ -8,6 +8,11 @@ namespace Garnet.server.BTreeIndex
 {
     public unsafe partial class BPlusTree
     {
+        /// <summary>
+        /// Delete a key from the B+tree
+        /// </summary>
+        /// <param name="key">key to delete</param>
+        /// <returns></returns>
         public bool Delete(byte* key)
         {
             BTreeNode* leaf = null;

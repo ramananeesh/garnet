@@ -770,6 +770,9 @@ namespace Garnet.server
                 RespCommand.GETIFNOTMATCH => NetworkGETIFNOTMATCH(ref storageApi),
                 RespCommand.SETIFMATCH => NetworkSETIFMATCH(ref storageApi),
 
+                // Stream Commands
+                // RespCommand.XADD => StreamAdd(),
+
                 _ => Process(command)
             };
 

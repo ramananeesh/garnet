@@ -32,7 +32,14 @@ namespace Garnet.server
             {
                 cachedStream.AddEntry(vPtr, vsize, idGiven, numPairs, ref _output);
             }
+            else
+            {
+                manager.StreamAdd(key, idGiven, vPtr, vsize, numPairs, ref _output, out byte[] lastStreamKey, out GarnetStreamObject lastStream);
+                // since we added to a new stream that was not in the cache, try adding it to the cache
+                sessionStreamCache.TryAddStreamToCache(lastStreamKey, lastStream);
+            }
 
+            _ = ProcessOutputWithHeader(_output);
             return true;
         }
     }

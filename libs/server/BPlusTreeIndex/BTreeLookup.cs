@@ -10,6 +10,11 @@ namespace Garnet.server.BTreeIndex
 {
     public unsafe partial class BPlusTree
     {
+        /// <summary>
+        /// Point lookup in the index
+        /// </summary>
+        /// <param name="key">lookup key</param>
+        /// <returns></returns>
         public Value Get(byte* key)
         {
             BTreeNode* leaf = null;
@@ -28,7 +33,17 @@ namespace Garnet.server.BTreeIndex
             return default;
         }
 
-
+        /// <summary>
+        /// Range lookup in the index
+        /// </summary>
+        /// <param name="start">start key for the range lookup</param>
+        /// <param name="end">end key for the range lookup</param>
+        /// <param name="startVal">address of the start key</param>
+        /// <param name="endVal">address of end key</param>
+        /// <param name="tombstones">list of tombstones</param>
+        /// <param name="limit">limit entries scanned in the range lookup</param>
+        /// <param name="reverse">reverse lookup</param>
+        /// <returns></returns>
         public int Get(byte* start, byte* end, out Value startVal, out Value endVal, out List<Value> tombstones, long limit = -1, bool reverse = false)
         {
             Debug.Assert(reverse ?

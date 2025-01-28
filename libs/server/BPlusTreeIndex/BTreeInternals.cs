@@ -5,6 +5,7 @@ using System;
 using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Runtime.Intrinsics.X86;
+using Tsavorite.core;
 
 namespace Garnet.server.BTreeIndex
 {
@@ -75,18 +76,23 @@ namespace Garnet.server.BTreeIndex
         public NodeData data; // data in the node
         public IntPtr memoryBlock; // pointer to the memory block
 
-        public void Allocate(BTreeNodeType type)
+        /// <summary>
+        /// Allocates memory for a node
+        /// </summary>
+        /// <param name="type">type of node to allocate memory for</param>
+        public void Allocate(BTreeNodeType type, SectorAlignedBufferPool bufferPool)
         {
             // TODO: Use a different memory allocation policy
-            memoryBlock = Marshal.AllocHGlobal(PAGE_SIZE);
-            info = (NodeInfo*)memoryBlock.ToPointer();
+            // memoryBlock = Marshal.AllocHGlobal(PAGE_SIZE);
+            // memoryBlock = this;
+            // info = (NodeInfo*)memoryBlock.aligned_pointer;
             info->count = 0;
             info->validCount = 0;
             info->type = type;
             info->next = null;
             info->previous = null;
 
-            byte* baseAddress = (byte*)memoryBlock + sizeof(NodeInfo);
+            byte* baseAddress = (byte*)info + sizeof(NodeInfo);
             keys = (byte*)baseAddress;
             int capacity = (type == BTreeNodeType.Leaf) ? LEAF_CAPACITY : INTERNAL_CAPACITY;
             byte* dataStart = baseAddress + capacity * KEY_SIZE;
@@ -142,6 +148,11 @@ namespace Garnet.server.BTreeIndex
             data.values[index].Valid = false;
         }
 
+        /// <summary>
+        /// Returns the index of the first key greater than the given key
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
         public int UpperBound(byte* key)
         {
             if (info->count == 0)
@@ -166,6 +177,11 @@ namespace Garnet.server.BTreeIndex
             return left;
         }
 
+        /// <summary>
+        /// Returns the index of the first key less than the given key
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
         public int LowerBound(byte* key)
         {
             if (info->count == 0)
@@ -194,6 +210,9 @@ namespace Garnet.server.BTreeIndex
             return left;
         }
 
+        /// <summary>
+        /// Upgrades a leaf node to an internal node
+        /// </summary>
         public void UpgradeToInternal()
         {
             info->type = BTreeNodeType.Internal;
@@ -244,6 +263,11 @@ namespace Garnet.server.BTreeIndex
                 data.values = null; // Only necessary if data.values or data.children was separately allocated
                 data.children = null;
             }
+            // memoryBlock.Return();
+            // info = null;
+            // keys = null;
+            // data.values = null;
+            // data.children = null;
         }
     }
 

@@ -83,7 +83,8 @@ namespace Garnet.server.BTreeIndex
         public BTreeNode* CreateNewLeafNode(ref BTreeNode* leafToSplit)
         {
             BTreeNode* newLeaf = (BTreeNode*)Marshal.AllocHGlobal(sizeof(BTreeNode)).ToPointer();
-            newLeaf->Allocate(BTreeNodeType.Leaf);
+            newLeaf->memoryBlock = (IntPtr)newLeaf;
+            newLeaf->Allocate(BTreeNodeType.Leaf, bufferPool);
             leafToSplit->info->count = SPLIT_LEAF_POSITION;
             leafToSplit->info->next = newLeaf;
             newLeaf->info->previous = leafToSplit;
@@ -142,7 +143,7 @@ namespace Garnet.server.BTreeIndex
         public BTreeNode* CreateInternalNode(ref BTreeNode* node, int splitPos)
         {
             BTreeNode* newNode = (BTreeNode*)Marshal.AllocHGlobal(sizeof(BTreeNode));
-            newNode->Allocate(BTreeNodeType.Internal);
+            newNode->Allocate(BTreeNodeType.Internal, bufferPool);
             stats.numInternalNodes++;
 
             node->info->count = splitPos;
@@ -183,8 +184,8 @@ namespace Garnet.server.BTreeIndex
 
         public void CreateNewRoot(byte* key, BTreeNode* newlySplitNode)
         {
-            BTreeNode* leftNode = (BTreeNode*)Marshal.AllocHGlobal(BTreeNode.PAGE_SIZE).ToPointer();
-            leftNode->Allocate(root->info->type);
+            BTreeNode* leftNode = (BTreeNode*)Marshal.AllocHGlobal(sizeof(BTreeNode)).ToPointer();
+            leftNode->Allocate(root->info->type, bufferPool);
 
             // copy the root node to the left node
             Buffer.MemoryCopy(root->info, leftNode->info, BTreeNode.PAGE_SIZE, BTreeNode.PAGE_SIZE);
