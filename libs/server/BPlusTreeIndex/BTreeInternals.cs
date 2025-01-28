@@ -83,9 +83,10 @@ namespace Garnet.server.BTreeIndex
         public void Allocate(BTreeNodeType type, SectorAlignedBufferPool bufferPool)
         {
             // TODO: Use a different memory allocation policy
-            // memoryBlock = Marshal.AllocHGlobal(PAGE_SIZE);
-            // memoryBlock = this;
-            // info = (NodeInfo*)memoryBlock.aligned_pointer;
+            memoryBlock = Marshal.AllocHGlobal(PAGE_SIZE);
+
+            // first handle node info 
+            info = (NodeInfo*)memoryBlock;
             info->count = 0;
             info->validCount = 0;
             info->type = type;

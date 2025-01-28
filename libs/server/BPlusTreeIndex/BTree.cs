@@ -29,9 +29,12 @@ namespace Garnet.server.BTreeIndex
         /// </summary>
         public BPlusTree(uint sectorSize)
         {
-            bufferPool = new SectorAlignedBufferPool(1, (int)sectorSize);
+            // bufferPool = new SectorAlignedBufferPool(1, (int)sectorSize);
             // TODO: Use a different memory allocation policy
-            root = (BTreeNode*)Marshal.AllocHGlobal(sizeof(BTreeNode)).ToPointer();
+            var memory = Marshal.AllocHGlobal(sizeof(BTreeNode));
+            root = (BTreeNode*)memory;
+            root->memoryBlock = (IntPtr)memory;
+            // root = (BTreeNode*)bufferPool.Get(sizeof(BTreeNode)).aligned_pointer;
             root->Allocate(BTreeNodeType.Leaf, bufferPool);
             head = tail = root;
             root->info->next = root->info->previous = null;
