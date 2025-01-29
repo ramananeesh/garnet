@@ -28,6 +28,7 @@ class Program
         // SectorAlignedMemory* ptr = (SectorAlignedMemory*)memory;
         BTreeNode* node = (BTreeNode*)memory;
         node->memoryBlock = (IntPtr)memory;
+        node->memoryHandle = memoryBlock;
         node->Initialize(BTreeNodeType.Leaf, pool);
         // something(pool, ptr);
         return;

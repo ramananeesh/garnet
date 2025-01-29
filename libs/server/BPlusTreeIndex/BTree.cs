@@ -34,11 +34,12 @@ namespace Garnet.server.BTreeIndex
             var memoryBlock = bufferPool.Get(BTreeNode.PAGE_SIZE);
             var memory = (IntPtr)memoryBlock.aligned_pointer;
             root = (BTreeNode*)memory;
-            root->memoryBlock = (IntPtr)memory;
+            root->memoryBlock = memory;
+            root->memoryHandle = memoryBlock;
             root->Initialize(BTreeNodeType.Leaf, bufferPool);
             head = tail = root;
-            root->info->next = root->info->previous = null;
-            root->info->count = 0;
+            root->info.next = root->info.previous = null;
+            root->info.count = 0;
             tailMinKey = null;
             rootToTailLeaf = new BTreeNode*[MAX_TREE_DEPTH];
             stats = new BTreeStats();
@@ -52,14 +53,15 @@ namespace Garnet.server.BTreeIndex
         /// <param name="node">BTreeNode to free from memory</param>
         private void Free(ref BTreeNode* node)
         {
-            if (node == null || node->info == null)
+            // if (node == null || node->info == null)
+            if (node == null)
             {
                 return;
             }
 
-            if (node->info->type == BTreeNodeType.Internal)
+            if (node->info.type == BTreeNodeType.Internal)
             {
-                for (var i = 0; i <= node->info->count; i++)
+                for (var i = 0; i <= node->info.count; i++)
                 {
                     var child = node->GetChild(i);
                     Free(ref child);
@@ -119,7 +121,7 @@ namespace Garnet.server.BTreeIndex
 
         public long GetValidCount(BTreeNode* node)
         {
-            return node->info->validCount;
+            return node->info.validCount;
         }
 
         /// <summary>
@@ -150,8 +152,8 @@ namespace Garnet.server.BTreeIndex
                 return default;
             }
             byte[] keyBytes = new byte[BTreeNode.KEY_SIZE];
-            Buffer.MemoryCopy(leaf->GetKey(leaf->info->count - 1), Unsafe.AsPointer(ref keyBytes[0]), BTreeNode.KEY_SIZE, BTreeNode.KEY_SIZE);
-            return new KeyValuePair<byte[], Value>(keyBytes, leaf->GetValue(leaf->info->count - 1));
+            Buffer.MemoryCopy(leaf->GetKey(leaf->info.count - 1), Unsafe.AsPointer(ref keyBytes[0]), BTreeNode.KEY_SIZE, BTreeNode.KEY_SIZE);
+            return new KeyValuePair<byte[], Value>(keyBytes, leaf->GetValue(leaf->info.count - 1));
         }
 
     }
