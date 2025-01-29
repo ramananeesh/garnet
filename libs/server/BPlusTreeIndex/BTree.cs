@@ -29,13 +29,13 @@ namespace Garnet.server.BTreeIndex
         /// </summary>
         public BPlusTree(uint sectorSize)
         {
-            // bufferPool = new SectorAlignedBufferPool(1, (int)sectorSize);
-            // TODO: Use a different memory allocation policy
-            var memory = Marshal.AllocHGlobal(sizeof(BTreeNode));
+            Console.WriteLine(sectorSize);
+            bufferPool = new SectorAlignedBufferPool(1, (int)sectorSize);
+            var memoryBlock = bufferPool.Get(BTreeNode.PAGE_SIZE);
+            var memory = (IntPtr)memoryBlock.aligned_pointer;
             root = (BTreeNode*)memory;
             root->memoryBlock = (IntPtr)memory;
-            // root = (BTreeNode*)bufferPool.Get(sizeof(BTreeNode)).aligned_pointer;
-            root->Allocate(BTreeNodeType.Leaf, bufferPool);
+            root->Initialize(BTreeNodeType.Leaf, bufferPool);
             head = tail = root;
             root->info->next = root->info->previous = null;
             root->info->count = 0;
@@ -44,7 +44,6 @@ namespace Garnet.server.BTreeIndex
             stats = new BTreeStats();
             stats.depth = 1;
             stats.numLeafNodes = 1;
-
         }
 
         /// <summary>

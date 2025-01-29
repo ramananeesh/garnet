@@ -68,8 +68,10 @@ namespace Garnet.server.BTreeIndex
     {
         public static int PAGE_SIZE = 4096;
         public static int KEY_SIZE = 16; // key size in bytes.
-        public static int LEAF_CAPACITY = (PAGE_SIZE - sizeof(NodeInfo)) / (KEY_SIZE + sizeof(Value));
-        public static int INTERNAL_CAPACITY = (PAGE_SIZE - sizeof(NodeInfo) - sizeof(BTreeNode*)) / (KEY_SIZE + sizeof(BTreeNode*));
+        // public static int LEAF_CAPACITY = (PAGE_SIZE - sizeof(NodeInfo)) / (KEY_SIZE + sizeof(Value));
+        // public static int INTERNAL_CAPACITY = (PAGE_SIZE - sizeof(NodeInfo) - sizeof(BTreeNode*)) / (KEY_SIZE + sizeof(BTreeNode*));
+        public static int LEAF_CAPACITY = (PAGE_SIZE - sizeof(NodeInfo*) - sizeof(NodeInfo) - sizeof(BTreeNode)) / (KEY_SIZE + sizeof(Value));
+        public static int INTERNAL_CAPACITY = (PAGE_SIZE - sizeof(NodeInfo*) - sizeof(NodeInfo) - sizeof(BTreeNode) - sizeof(BTreeNode*)) / (KEY_SIZE + sizeof(BTreeNode*));
 
         public NodeInfo* info;
         public byte* keys;
@@ -80,30 +82,30 @@ namespace Garnet.server.BTreeIndex
         /// Allocates memory for a node
         /// </summary>
         /// <param name="type">type of node to allocate memory for</param>
-        public void Allocate(BTreeNodeType type, SectorAlignedBufferPool bufferPool)
+        public void Initialize(BTreeNodeType type, SectorAlignedBufferPool bufferPool)
         {
-            // TODO: Use a different memory allocation policy
-            memoryBlock = Marshal.AllocHGlobal(PAGE_SIZE);
-
-            // first handle node info 
-            info = (NodeInfo*)memoryBlock;
-            info->count = 0;
-            info->validCount = 0;
+            // assume this is called after memory has been allocated and memoryBlock is set (it is the first field)
+            // we are only assigning different parts of the memory to different fields
+            var startAddr = (byte*)memoryBlock;
+            info = (NodeInfo*)(startAddr);
             info->type = type;
+            info->count = 0;
             info->next = null;
             info->previous = null;
+            info->validCount = 0;
 
-            byte* baseAddress = (byte*)info + sizeof(NodeInfo);
+            var baseAddress = startAddr + sizeof(NodeInfo) + sizeof(NodeInfo*);
             keys = (byte*)baseAddress;
-            int capacity = (type == BTreeNodeType.Leaf) ? LEAF_CAPACITY : INTERNAL_CAPACITY;
-            byte* dataStart = baseAddress + capacity * KEY_SIZE;
+
+            int capacity = type == BTreeNodeType.Leaf ? LEAF_CAPACITY : INTERNAL_CAPACITY;
+            byte* dataAddress = keys + (capacity * KEY_SIZE);
             if (type == BTreeNodeType.Leaf)
             {
-                data.values = (Value*)dataStart;
+                data.values = (Value*)dataAddress;
             }
             else
             {
-                data.children = (BTreeNode**)dataStart;
+                data.children = (BTreeNode**)dataAddress;
             }
         }
 
@@ -264,7 +266,7 @@ namespace Garnet.server.BTreeIndex
                 data.values = null; // Only necessary if data.values or data.children was separately allocated
                 data.children = null;
             }
-            // memoryBlock.Return();
+
             // info = null;
             // keys = null;
             // data.values = null;

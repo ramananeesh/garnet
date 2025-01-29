@@ -3,17 +3,36 @@
 
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using Garnet.server;
 using Garnet.server.BTreeIndex;
+using Tsavorite.core;
 class Program
 {
     /// <summary>
     /// Playground for the B+tree index implementation
     /// </summary>
     /// <param name="args"></param>
+    /// 
+    static unsafe void something(SectorAlignedBufferPool pool, SectorAlignedMemory* ptr)
+    {
+        pool.Return(*ptr);
+    }
     static unsafe void Main(string[] args)
     {
+        // IntPtr memory = Marshal.AllocHGlobal(BTreeNode.PAGE_SIZE);
+
+        var pool = new SectorAlignedBufferPool(1, 4096);
+        var memoryBlock = pool.Get(4096);
+        var memory = (IntPtr)memoryBlock.aligned_pointer;
+        // SectorAlignedMemory* ptr = (SectorAlignedMemory*)memory;
+        BTreeNode* node = (BTreeNode*)memory;
+        node->memoryBlock = (IntPtr)memory;
+        node->Initialize(BTreeNodeType.Leaf, pool);
+        // something(pool, ptr);
+        return;
         var tree = new BPlusTree(4096);
+
         ulong N = 1000;
         bool verbose = false;
         bool sanity = false;
