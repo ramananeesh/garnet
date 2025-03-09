@@ -4,6 +4,7 @@
 using System;
 using System.Buffers;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Garnet.common;
@@ -78,6 +79,7 @@ namespace Garnet.server
                 storeWrapper.customCommandManager,
                 recordToAof ? storeWrapper.appendOnlyFile : null,
                 storeWrapper.serverOptions,
+                storeWrapper.subscribeBroker,
                 accessControlList: storeWrapper.accessControlList,
                 loggerFactory: storeWrapper.loggerFactory);
 
@@ -198,7 +200,7 @@ namespace Garnet.server
             switch (header.opType)
             {
                 case AofEntryType.TxnStart:
-                    inflightTxns[header.sessionID] = new List<byte[]>();
+                    inflightTxns[header.sessionID] = [];
                     break;
                 case AofEntryType.TxnAbort:
                 case AofEntryType.TxnCommit:
@@ -206,19 +208,32 @@ namespace Garnet.server
                     // after a checkpoint, and the transaction belonged to the previous version. It can safely
                     // be ignored.
                     break;
-                case AofEntryType.MainStoreCheckpointCommit:
-                    if (asReplica)
-                    {
-                        if (header.storeVersion > storeWrapper.store.CurrentVersion)
-                            storeWrapper.TakeCheckpoint(false, StoreType.Main, logger);
-                    }
+                case AofEntryType.MainStoreCheckpointStartCommit:
+                    if (asReplica && header.storeVersion > storeWrapper.store.CurrentVersion)
+                        _ = storeWrapper.TakeCheckpoint(false, StoreType.Main, logger);
                     break;
-                case AofEntryType.ObjectStoreCheckpointCommit:
-                    if (asReplica)
-                    {
-                        if (header.storeVersion > storeWrapper.objectStore.CurrentVersion)
-                            storeWrapper.TakeCheckpoint(false, StoreType.Object, logger);
-                    }
+                case AofEntryType.ObjectStoreCheckpointStartCommit:
+                    if (asReplica && header.storeVersion > storeWrapper.objectStore.CurrentVersion)
+                        _ = storeWrapper.TakeCheckpoint(false, StoreType.Object, logger);
+                    break;
+                case AofEntryType.MainStoreCheckpointEndCommit:
+                case AofEntryType.ObjectStoreCheckpointEndCommit:
+                    break;
+                case AofEntryType.MainStoreStreamingCheckpointStartCommit:
+                    Debug.Assert(storeWrapper.serverOptions.ReplicaDisklessSync);
+                    if (asReplica && header.storeVersion > storeWrapper.store.CurrentVersion)
+                        storeWrapper.store.SetVersion(header.storeVersion);
+                    break;
+                case AofEntryType.MainStoreStreamingCheckpointEndCommit:
+                    Debug.Assert(storeWrapper.serverOptions.ReplicaDisklessSync);
+                    break;
+                case AofEntryType.ObjectStoreStreamingCheckpointStartCommit:
+                    Debug.Assert(storeWrapper.serverOptions.ReplicaDisklessSync);
+                    if (asReplica && header.storeVersion > storeWrapper.store.CurrentVersion)
+                        storeWrapper.objectStore.SetVersion(header.storeVersion);
+                    break;
+                case AofEntryType.ObjectStoreStreamingCheckpointEndCommit:
+                    Debug.Assert(storeWrapper.serverOptions.ReplicaDisklessSync);
                     break;
                 default:
                     ReplayOp(ptr);
@@ -344,10 +359,10 @@ namespace Garnet.server
             ref var value = ref Unsafe.AsRef<SpanByte>(ptr + sizeof(AofHeader) + key.TotalSize);
             var valB = garnetObjectSerializer.Deserialize(value.ToByteArray());
 
-            var output = new GarnetObjectStoreOutput { spanByteAndMemory = new(outputPtr, outputLength) };
+            var output = new GarnetObjectStoreOutput { SpanByteAndMemory = new(outputPtr, outputLength) };
             basicContext.Upsert(ref keyB, ref valB);
-            if (!output.spanByteAndMemory.IsSpanByte)
-                output.spanByteAndMemory.Memory.Dispose();
+            if (!output.SpanByteAndMemory.IsSpanByte)
+                output.SpanByteAndMemory.Memory.Dispose();
         }
 
         static unsafe void ObjectStoreRMW(BasicContext<byte[], IGarnetObject, ObjectInput, GarnetObjectStoreOutput, long, ObjectSessionFunctions, ObjectStoreFunctions, ObjectStoreAllocator> basicContext,
@@ -364,12 +379,12 @@ namespace Garnet.server
             objectStoreInput.DeserializeFrom(curr);
 
             // Call RMW with the reconstructed key & ObjectInput
-            var output = new GarnetObjectStoreOutput { spanByteAndMemory = new(outputPtr, outputLength) };
+            var output = new GarnetObjectStoreOutput { SpanByteAndMemory = new(outputPtr, outputLength) };
             if (basicContext.RMW(ref keyB, ref objectStoreInput, ref output).IsPending)
                 basicContext.CompletePending(true);
 
-            if (!output.spanByteAndMemory.IsSpanByte)
-                output.spanByteAndMemory.Memory.Dispose();
+            if (!output.SpanByteAndMemory.IsSpanByte)
+                output.SpanByteAndMemory.Memory.Dispose();
         }
 
         static unsafe void ObjectStoreDelete(BasicContext<byte[], IGarnetObject, ObjectInput, GarnetObjectStoreOutput, long, ObjectSessionFunctions, ObjectStoreFunctions, ObjectStoreAllocator> basicContext, byte* ptr)
@@ -407,7 +422,8 @@ namespace Garnet.server
                 AofEntryType.StoreUpsert or AofEntryType.StoreRMW or AofEntryType.StoreDelete => AofStoreType.MainStoreType,
                 AofEntryType.ObjectStoreUpsert or AofEntryType.ObjectStoreRMW or AofEntryType.ObjectStoreDelete => AofStoreType.ObjectStoreType,
                 AofEntryType.TxnStart or AofEntryType.TxnCommit or AofEntryType.TxnAbort or AofEntryType.StoredProcedure => AofStoreType.TxnType,
-                AofEntryType.MainStoreCheckpointCommit or AofEntryType.ObjectStoreCheckpointCommit => AofStoreType.CheckpointType,
+                AofEntryType.MainStoreCheckpointStartCommit or AofEntryType.ObjectStoreCheckpointStartCommit or AofEntryType.MainStoreStreamingCheckpointStartCommit or AofEntryType.ObjectStoreStreamingCheckpointStartCommit => AofStoreType.CheckpointType,
+                AofEntryType.MainStoreCheckpointEndCommit or AofEntryType.ObjectStoreCheckpointEndCommit or AofEntryType.MainStoreStreamingCheckpointEndCommit or AofEntryType.ObjectStoreStreamingCheckpointEndCommit => AofStoreType.CheckpointType,
                 _ => throw new GarnetException($"Conversion to AofStoreType not possible for {type}"),
             };
         }
