@@ -638,7 +638,7 @@ namespace Garnet.common
         /// <param name="ptr">The starting position in the RESP string. Will be advanced if parsing is successful.</param>
         /// <param name="end">The current end of the RESP string.</param>
         /// <returns>True if a ulong was successfully parsed.</returns>
-        public static bool ReadUlong(out ulong number, ref byte* ptr, byte* end) => TryReadUlong(ref ptr, end, out number, out _);
+        public static bool ReadUlong(out ulong number, ref byte* ptr, byte* end) => TryReadUInt64(ref ptr, end, out number, out _);
 
         /// <summary>
         /// Read long with length header

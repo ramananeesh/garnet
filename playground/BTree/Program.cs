@@ -3,7 +3,6 @@
 
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 using Garnet.server;
 using Garnet.server.BTreeIndex;
 using Tsavorite.core;
@@ -27,7 +26,6 @@ class Program
         var memory = (IntPtr)memoryBlock.aligned_pointer;
         // SectorAlignedMemory* ptr = (SectorAlignedMemory*)memory;
         BTreeNode* node = (BTreeNode*)memory;
-        node->memoryBlock = (IntPtr)memory;
         node->memoryHandle = memoryBlock;
         node->Initialize(BTreeNodeType.Leaf, pool);
         // something(pool, ptr);

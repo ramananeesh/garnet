@@ -70,14 +70,14 @@ namespace Garnet.server.BTreeIndex
         public static int KEY_SIZE = 16; // key size in bytes.
         // public static int LEAF_CAPACITY = (PAGE_SIZE - sizeof(NodeInfo)) / (KEY_SIZE + sizeof(Value));
         // public static int INTERNAL_CAPACITY = (PAGE_SIZE - sizeof(NodeInfo) - sizeof(BTreeNode*)) / (KEY_SIZE + sizeof(BTreeNode*));
-        public static int METADATA_SIZE = sizeof(NodeInfo) + sizeof(IntPtr) + sizeof(SectorAlignedMemory);
+        public static int METADATA_SIZE = sizeof(NodeInfo) +  sizeof(SectorAlignedMemory);
         public static int LEAF_CAPACITY = (PAGE_SIZE - METADATA_SIZE) / (KEY_SIZE + sizeof(Value));
         public static int INTERNAL_CAPACITY = (PAGE_SIZE - METADATA_SIZE - sizeof(BTreeNode*)) / (KEY_SIZE + sizeof(BTreeNode*));
 
         public NodeInfo info;
         public byte* keys;
         public NodeData data; // data in the node
-        public IntPtr memoryBlock; // pointer to the memory block
+        // public IntPtr memoryBlock; // pointer to the memory block
         public SectorAlignedMemory memoryHandle;
 
         /// <summary>
